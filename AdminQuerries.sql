@@ -1,0 +1,1 @@
+--querries suitable for admin

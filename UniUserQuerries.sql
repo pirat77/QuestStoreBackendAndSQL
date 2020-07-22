@@ -1,0 +1,1 @@
+--Querries for all user types
