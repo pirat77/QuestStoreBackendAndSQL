@@ -20,3 +20,16 @@ SELECT user_types.name,
        count(CASE WHEN is_active IS FALSE THEN FALSE END) AS inactive_users
 FROM users JOIN user_types ON users.user_type_id = user_types.id
 GROUP BY user_types.name;
+
+--percentage of bought and never bought artifacts
+SELECT
+	CASE
+    	WHEN	sda.artifact_id IS NOT NULL
+		THEN	'Has been bought at least once'
+		ELSE	'Never bought' 
+  	END as Has_been_bought,
+ count(a.id) as counter,
+ count(a.id) / (SELECT cast(count(id) AS FLOAT) FROM artifacts) * 100 as percentrage
+FROM artifacts as a LEFT JOIN (SELECT DISTINCT sda.artifact_id FROM students_details_artifacts as sda) as sda on a.id = sda.artifact_id
+GROUP BY Has_been_bought
+ORDER BY counter ASC;
