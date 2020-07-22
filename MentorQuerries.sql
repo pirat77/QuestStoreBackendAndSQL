@@ -39,3 +39,30 @@ SELECT concat(users.last_name,' ' ,users.first_name) AS full_name
 FROM users JOIN students_details ON users.student_id = students_details.id
 LEFT JOIN students_details_artifacts ON students_details.id = students_details_artifacts.student_id
 WHERE students_details_artifacts.artifact_id IS NULL ORDER BY full_name ASC;
+
+--classrooms names with students count, only if classroom has at least one student
+SELECT name, count(user_id) as counts
+FROM classrooms
+JOIN users_classrooms uc on classrooms.id = uc.classroom_id
+GROUP BY name
+ORDER BY counts DESC;
+
+-- classrooms names with students count, even empty classrooms
+SELECT classrooms.name AS rooms, count(students.id) AS counter
+FROM (SELECT id, classroom_id FROM users
+    JOIN users_classrooms uc on users.id = uc.user_id
+    WHERE student_id IS NOT NULL)
+AS students
+FULL OUTER JOIN classrooms ON students.classroom_id=classrooms.id
+GROUP BY rooms
+ORDER BY counter DESC;
+
+-- classrooms names with students count and percentage of all students
+SELECT classrooms.name AS rooms, count(students.id) AS counter, round(count(students) / (SELECT cast(count(*) AS FLOAT) FROM users WHERE student_id IS NOT NULL) * 100) AS percentage
+FROM (SELECT id, classroom_id FROM users
+    JOIN users_classrooms uc on users.id = uc.user_id
+    WHERE student_id IS NOT NULL)
+AS students
+FULL OUTER JOIN classrooms ON students.classroom_id=classrooms.id
+GROUP BY rooms
+ORDER BY counter DESC;
